@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import EditorComponent from "../components/molecules/EditorComponent/EditorComponent";
 import EditorButton from "../components/atoms/EditorButton/EditorButton";
 import TreeStructure from "../components/organisms/TreeStructure/TreeStructure";
+import { useEditorSocketStore } from "../store/editorSocketStore";
+import { io } from "socket.io-client";
 
 export default function ProjectPlayground() {
   const { projectId } = useParams();
+  const { setEditorSocket } = useEditorSocketStore();
+
+  useEffect(() => {
+    const socketConn = io(`${import.meta.env.VITE_BACKEND_URL}/editor`, {
+      query: { projectId: projectId },
+    });
+    setEditorSocket(socketConn);
+  }, [projectId, setEditorSocket]);
 
   return (
     <>
@@ -25,7 +35,7 @@ export default function ProjectPlayground() {
             <TreeStructure projectId={projectId} />
           </div>
         )}
-      <EditorComponent />
+        <EditorComponent />
       </div>
       <EditorButton />
       <EditorButton isActive={true} />

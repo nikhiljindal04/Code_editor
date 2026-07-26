@@ -9,7 +9,7 @@ export default function Router() {
   return (
     <Routes>
         <Route path="/" element={<PingComponent/>} />
-        <Route path="/projects" element={<Createproject />} />
+        <Route path="/project" element={<Createproject />} />
         <Route path="/project/:projectId" element={<ProjectPlayground />} />
       </Routes>
   )
