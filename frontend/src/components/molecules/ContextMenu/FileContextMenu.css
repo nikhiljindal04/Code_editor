@@ -1,0 +1,15 @@
+/* add css for button */
+.fileContextButton {
+    color:#fff;
+    outline:"none";
+  width: 100%;
+  padding: 8px;
+  background-color: #363545;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fileContextButton:hover {
+  background-color: #555;
+}

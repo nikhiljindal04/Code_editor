@@ -13,6 +13,8 @@ export const createProjectApi = async ()=> {
 
 export const getProjectTreeApi = async (projectId)=> {
     try {
+              console.log("inside getProjectTreeApi", projectId);
+
         const response = await axios.get(`/api/v1/projects/${projectId}/tree`);
         return response?.data?.data;
     } catch (error) {

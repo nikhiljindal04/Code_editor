@@ -1,21 +1,23 @@
 import { Editor } from "@monaco-editor/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useActiveFileTabStore from "../../../store/activeFileTabStore";
 import { useEditorSocketStore } from "../../../store/editorSocketStore";
+import { extensionToFileType } from "../../../utils/extensionToFileType";
 
 export default function EditorComponent() {
   const [editorState, setEditorState] = useState({});
-  const {editorSocket} = useEditorSocketStore();
-  const {activeFileTab, setActiveFileTab} = useActiveFileTabStore();
+  const { activeFileTab } = useActiveFileTabStore();
+
+  const { editorSocket } = useEditorSocketStore();
+  const timerRef = useRef(null);
 
   useEffect(() => {
     async function downloadTheme() {
-    const response = await fetch("/dracula.json");
-    const data = await response.json();
-    setEditorState({ ...setEditorState, theme: data });
-  }
+      const response = await fetch("/dracula.json");
+      const data = await response.json();
+      setEditorState({ ...setEditorState, theme: data });
+    }
     downloadTheme();
-
   }, []);
 
   function handleEditorTheme(editor, monaco) {
@@ -23,26 +25,36 @@ export default function EditorComponent() {
     monaco.editor.setTheme("dracula");
   }
 
-  editorSocket?.on("readFileSuccess", (data)=> {
-    console.log(data);
-    setActiveFileTab(data.path, data.data);
-    
-  })
+  function handleChange(value) {
+    //implement debouncing
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      const editorContent = value;
+      console.log("hii event fired")
+      editorSocket.emit("writeFile", {
+        pathToFileOrFolder: activeFileTab.path,
+        data: editorContent,
+      });
+    }, 2000);
+  }
 
   return (
     <>
-      {editorState.theme && 
+      {editorState.theme && (
         <Editor
           height="90vh"
-          defaultLanguage="javascript"
-          //defaultValue="// some comment"
+          language={extensionToFileType(activeFileTab?.extension) || "plaintext"}
           value={activeFileTab?.value ? activeFileTab.value : "//Somecomment"}
           options={{
             fontSize: 18,
-            fontFamily: "monospace"
+            fontFamily: "monospace",
           }}
+          onChange={handleChange}
           onMount={handleEditorTheme}
         />
+      )
       }
     </>
   );

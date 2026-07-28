@@ -1,0 +1,6 @@
+/* set padding and margin to zero */
+
+* {
+    margin: 0;
+    padding: 0;
+}
