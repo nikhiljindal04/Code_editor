@@ -18,11 +18,16 @@ export const handleContainerCreate = async (projectId, terminalSocket, req, tcpS
         AttachStderr: true,
         Cmd: ['/bin/bash'],
         Tty: true,
+        // 1. Declare the anonymous volume at the root level of the config
+        Volumes: {
+            "/home/sandbox/app/node_modules": {} 
+        },
         ExposedPorts: {
                 "5173/tcp": {}
             },
-            Env: [
-                'HOST=0.0.0.0'
+        Env: [
+                'CHOKIDAR_USEPOLLING=true', // Forces Vite to see file changes on Windows hosts
+                'VITE_USER_NODE_ENV=development'
             ],
         HostConfig: {
             Binds: [`${process.cwd()}/projects/${projectId}:/home/sandbox/app`],
