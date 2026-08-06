@@ -6,10 +6,12 @@ import TreeStructure from "../components/organisms/TreeStructure/TreeStructure";
 import { useEditorSocketStore } from "../store/editorSocketStore";
 import { io } from "socket.io-client";
 import useTreeStructureStore from "../store/treeStructureStore";
+import { Terminal } from "@xterm/xterm";
+import BrowserTerminal from "../components/molecules/BrowserTerminal/BrowserTerminal";
 
 export default function ProjectPlayground() {
   const { projectId: projectIdFromURL } = useParams();
-  const { setEditorSocket } = useEditorSocketStore();
+  const { setEditorSocket, editorSocket } = useEditorSocketStore();
   const {projectId, setProjectId} = useTreeStructureStore();
 
   useEffect(() => {
@@ -17,9 +19,18 @@ export default function ProjectPlayground() {
     const socketConn = io(`${import.meta.env.VITE_BACKEND_URL}/editor`, {
       query: { projectId: projectId },
     });
-    console.log("project component reloaded")
     setEditorSocket(socketConn);
+
+    return () => {
+      socketConn.disconnect();
+    }
+
   }, [projectIdFromURL, projectId, setEditorSocket, setProjectId]);
+
+  function fetchPort(){
+
+    editorSocket.emit("getPort");
+  }
 
   return (
     <>
@@ -43,6 +54,10 @@ export default function ProjectPlayground() {
       </div>
       <EditorButton />
       <EditorButton isActive={true} />
+      <button onClick={fetchPort}>Fetch port</button>
+      <div>
+        <BrowserTerminal/>
+      </div>
     </>
   );
 }

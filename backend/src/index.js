@@ -7,6 +7,9 @@ import { Server } from "socket.io";
 import chokidar from "chokidar";
 import path from "path";
 import { handleEditorSocketEvents } from "./socketHandlers/editorEventHandler.js";
+import { handleContainerCreate, listContainers } from "./Containers/handleContainerCreate.js";
+import { WebSocketServer } from "ws";
+import { handleTerminalCreation } from "./Containers/handleTerminalCreation.js";
 
 const app = express();
 const server = createServer(app);
@@ -47,8 +50,9 @@ editorNamespace.on("connection", (socket) => {
     });
   }
 
-  socket.emit("connectionSuccess", ()=> {
-    console.log("hii i am connected");
+  socket.on("getPort", ()=>{
+    console.log("port requested");
+    listContainers();
   })
 
   handleEditorSocketEvents(socket, editorNamespace);
@@ -61,4 +65,35 @@ editorNamespace.on("connection", (socket) => {
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+const webSocketForTerminal = new WebSocketServer({
+  noServer: true,
+});
+
+server.on("upgrade", (req, tcpSocket, head) => {
+  // req : incoming http request
+  //socket : TCP connection
+  // head : first packet of the upgraded stream
+  const isTerminal = req.url.includes("/terminal");
+  if (isTerminal) {
+    const projectId = req.url.split("=")[1]; 
+    handleContainerCreate(projectId, webSocketForTerminal, req, tcpSocket, head);
+  }
+});
+
+webSocketForTerminal.on("connection", (ws, req, container) => {
+  console.log("Terminal connected");
+
+  handleTerminalCreation(ws, container);
+
+  ws.on("close", () => {
+    console.log("Terminal disconnected");
+    container.remove({force: true}, (err, data)=> {
+      if(err){
+        console.log("Error while removing container",err);
+      }
+      console.log("container removed",data);
+    });
+  });
 });

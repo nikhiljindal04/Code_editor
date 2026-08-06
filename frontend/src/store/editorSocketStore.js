@@ -18,7 +18,7 @@ export const useEditorSocketStore = create((set) => ({
       console.log("inside writeFileSuccess", activeFileTab, data);
 
       if (activeFileTab?.path && activeFileTab.path === data.path) {
-        console.log("emit read Filewef")
+        console.log("emit read File")
         socket.emit("readFile", { pathToFileOrFolder: activeFileTab.path });
       }
     });

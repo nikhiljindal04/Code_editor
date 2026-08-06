@@ -6,7 +6,6 @@ const useTreeStructureStore = create((set, get) => ({
   projectId: null,
   treeStructure: null,
   setTreeStructure: async () => {
-    console.log("inside setTreeStructure", get().projectId);
     const data = await getProjectTreeApi(get().projectId);
     set({ treeStructure: data });
   },
