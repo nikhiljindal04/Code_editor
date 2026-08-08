@@ -4,11 +4,19 @@ import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
 import { useParams } from 'react-router-dom'
 import { AttachAddon } from '@xterm/addon-attach'
+import { useEditorSocketStore } from '../../../store/editorSocketStore'
+import usePortStore from '../../../store/portStore'
+import useTerminalSocketStore from '../../../store/terminalSocketStore';
+import useTreeStructureStore from '../../../store/treeStructureStore'
+import useFetchPortLogicStore from '../../../store/fetchportLogicStore'
 
 function BrowserTerminal() {
 
     const terminalRef = useRef(null);
     const {projectId: projectIdFromURL} = useParams();
+    const { setTerminalSocket } = useTerminalSocketStore();
+    const {editorSocket} = useEditorSocketStore();
+    const {setIsTerminalSocketReady} = useFetchPortLogicStore();
 
     useEffect(() => {
         const terminal = new Terminal({
@@ -32,12 +40,17 @@ function BrowserTerminal() {
         
 
         const ws = new WebSocket(`ws://localhost:3000/terminal?projectId=${projectIdFromURL}`);
+        setTerminalSocket(ws);
 
         ws.onopen = () => {
+            //attach fitaddon
+            const fitAddon = new FitAddon();
+            terminal.loadAddon(fitAddon);
+            fitAddon.fit();
             const attachAddon = new AttachAddon(ws);
             terminal.loadAddon(attachAddon);
+            setIsTerminalSocketReady(true);
         }
-
 
         return () => {
             //socketRef.current.disconnect();
@@ -53,7 +66,7 @@ function BrowserTerminal() {
     style={{
         //setwidth and height
         width : '100%',
-        height:'100vh'
+        height:'40vh'
     }}
     className='terminal'
     id='terminal-container'

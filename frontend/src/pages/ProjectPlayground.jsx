@@ -8,29 +8,35 @@ import { io } from "socket.io-client";
 import useTreeStructureStore from "../store/treeStructureStore";
 import { Terminal } from "@xterm/xterm";
 import BrowserTerminal from "../components/molecules/BrowserTerminal/BrowserTerminal";
+import { Browser } from "../components/organisms/Browser/Browser";
+import useTerminalSocketStore from "../store/terminalSocketStore";
+import useFetchPortLogicStore from "../store/fetchportLogicStore";
 
 export default function ProjectPlayground() {
   const { projectId: projectIdFromURL } = useParams();
   const { setEditorSocket, editorSocket } = useEditorSocketStore();
   const {projectId, setProjectId} = useTreeStructureStore();
+  const {setIsEditorSocketReady} = useFetchPortLogicStore();
 
   useEffect(() => {
     setProjectId(projectIdFromURL);
     const socketConn = io(`${import.meta.env.VITE_BACKEND_URL}/editor`, {
       query: { projectId: projectId },
     });
+    
+    socketConn.on("connect", () => {
+      setIsEditorSocketReady(true);
+    });
     setEditorSocket(socketConn);
 
     return () => {
       socketConn.disconnect();
+      setIsEditorSocketReady(false);
     }
+  }, [projectIdFromURL, projectId, setEditorSocket, setProjectId, setIsEditorSocketReady]);
 
-  }, [projectIdFromURL, projectId, setEditorSocket, setProjectId]);
-
-  function fetchPort(){
-
-    editorSocket.emit("getPort");
-  }
+  
+  
 
   return (
     <>
@@ -54,9 +60,11 @@ export default function ProjectPlayground() {
       </div>
       <EditorButton />
       <EditorButton isActive={true} />
-      <button onClick={fetchPort}>Fetch port</button>
       <div>
         <BrowserTerminal/>
+      </div>
+      <div>
+        {projectId && <Browser/>}
       </div>
     </>
   );

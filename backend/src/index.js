@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 import chokidar from "chokidar";
 import path from "path";
 import { handleEditorSocketEvents } from "./socketHandlers/editorEventHandler.js";
-import { handleContainerCreate, listContainers } from "./Containers/handleContainerCreate.js";
+import { handleContainerCreate } from "./Containers/handleContainerCreate.js";
 import { WebSocketServer } from "ws";
 import { handleTerminalCreation } from "./Containers/handleTerminalCreation.js";
 
@@ -83,12 +83,7 @@ editorNamespace.on("connection", (socket) => {
   //   //     }
   //   //   }
   //   // });
-  // }
-
-  socket.on("getPort", ()=>{
-    console.log("port requested");
-    listContainers();
-  })
+  // }  
 
   handleEditorSocketEvents(socket, editorNamespace);
 
@@ -122,13 +117,17 @@ webSocketForTerminal.on("connection", (ws, req, container) => {
 
   handleTerminalCreation(ws, container);
 
+  //emit ws event that terminal is ready
+  // ws.emit("terminalReady");
+
+
   ws.on("close", () => {
     console.log("Terminal disconnected");
-    container.remove({force: true}, (err, data)=> {
-      if(err){
-        console.log("Error while removing container",err);
-      }
-      console.log("container removed",data);
-    });
+    // container.remove({force: true}, (err, data)=> {
+    //   if(err){
+    //     console.log("Error while removing container",err);
+    //   }
+    //   console.log("container removed",data);
+    // });
   });
 });
