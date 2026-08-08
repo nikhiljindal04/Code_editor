@@ -44,7 +44,8 @@ export default function EditorComponent() {
     <>
       {editorState.theme && (
         <Editor
-          height="90vh"
+          height={"70vh"}
+          width={"100%"}
           language={extensionToFileType(activeFileTab?.extension) || "plaintext"}
           value={activeFileTab?.value ? activeFileTab.value : "//Somecomment"}
           options={{

@@ -13,7 +13,7 @@ export const getContainerPort = async(projectId)=>{
         const containerInfo = await docker.getContainer(container[0].Id);
         const data = await containerInfo.inspect();
         // Safely access the port mapping
-        const portBindings = data.NetworkSettings.Ports['5173/tcp'];
+        const portBindings = data.NetworkSettings?.Ports?.['5173/tcp'];
         return portBindings && portBindings.length > 0 ? portBindings[0].HostPort : null;
     }
     return null;
@@ -27,14 +27,11 @@ export const getContainerPort = async(projectId)=>{
 export const handleContainerCreate = async (projectId, terminalSocket, req, tcpSocket, head) => {
     try {
         //delete if any existing container with the same name
-        console.log("projectId inside", projectId);
         const existingContainer = await docker.listContainers({
             filters: {
                 name: [projectId]
             }
         });
-        console.log("projectId inside handleContainerCreate 1", projectId);
-        console.log("existing container", existingContainer);
         if(existingContainer.length > 0){
             console.log("container exist stopping and removing it");
             const container = docker.getContainer(existingContainer[0].Id);

@@ -5,9 +5,7 @@ import '@xterm/xterm/css/xterm.css'
 import { useParams } from 'react-router-dom'
 import { AttachAddon } from '@xterm/addon-attach'
 import { useEditorSocketStore } from '../../../store/editorSocketStore'
-import usePortStore from '../../../store/portStore'
 import useTerminalSocketStore from '../../../store/terminalSocketStore';
-import useTreeStructureStore from '../../../store/treeStructureStore'
 import useFetchPortLogicStore from '../../../store/fetchportLogicStore'
 
 function BrowserTerminal() {
@@ -15,7 +13,6 @@ function BrowserTerminal() {
     const terminalRef = useRef(null);
     const {projectId: projectIdFromURL} = useParams();
     const { setTerminalSocket } = useTerminalSocketStore();
-    const {editorSocket} = useEditorSocketStore();
     const {setIsTerminalSocketReady} = useFetchPortLogicStore();
 
     useEffect(() => {
@@ -66,7 +63,7 @@ function BrowserTerminal() {
     style={{
         //setwidth and height
         width : '100%',
-        height:'40vh'
+        height:'80vh',
     }}
     className='terminal'
     id='terminal-container'

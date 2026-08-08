@@ -53,9 +53,9 @@ export default function TreeNode({ fileFolderData }) {
               outline: "none",
               backgroundColor: "transparent",
               color: "white",
-              paddingTop: "20px",
+              paddingTop: "10px",
               fontSize: "18px",
-              marginTop: "10px"
+              marginTop: "15px"
             }}
           >
             {visibility[fileFolderData.name] ? (
@@ -74,7 +74,7 @@ export default function TreeNode({ fileFolderData }) {
                 marginTop:"7px",
                 fontSize: "18px",
                 cursor: "pointer",
-                marginLeft: "7px",
+                marginLeft: "10px",
                 color: "white",
                
               }}

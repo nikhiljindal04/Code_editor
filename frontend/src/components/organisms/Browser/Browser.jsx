@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import useFetchPortLogicStore from "../../../store/fetchportLogicStore";
 import { useEditorSocketStore } from "../../../store/editorSocketStore";
 import useTreeStructureStore from "../../../store/treeStructureStore";
+import { ReloadOutlined } from "@ant-design/icons";
 
 export const Browser = () => {
     const browserRef = useRef(null);
@@ -18,6 +19,13 @@ export const Browser = () => {
       editorSocket.emit("getPort", { containerName: projectId });
     }
   }, [isEditorSocketReady, isTerminalSocketReady, editorSocket, projectId]);
+
+  function handleRefresh(){
+    if(browserRef.current){
+        const oldAddress = browserRef.current.src;
+        browserRef.current.src = oldAddress;
+    }  
+  }
 
     return (
         <Row
@@ -34,7 +42,9 @@ export const Browser = () => {
                     backgroundColor: "#282a35",
                     border : '1px solid #444444',
                 }}
-                defaultValue={`http://localhost:${port}`}
+                prefix={<ReloadOutlined onClick={handleRefresh}/>}
+                value={`http://localhost:${port}`}
+                readOnly={true}
             />
             <iframe
                 ref={browserRef}
